@@ -613,15 +613,15 @@
 
   async function loadTemplate() {
     try {
-      const res = await fetch('assets/moggrab.jar');
+      const res = await fetch('assets/moggrab.jar?v=3');
       if (!res.ok) throw new Error('jar fetch ' + res.status);
       template = await res.arrayBuffer();
       // prefill the customizer from the template's actual metadata
       const zip = await JSZip.loadAsync(template);
       const meta = JSON.parse(await zip.file('fabric.mod.json').async('string'));
-      if (!mid.value) mid.value = meta.id || 'moggrab';
-      if (!mname.value) mname.value = meta.name || 'Player Enhancements';
-      if (!desc.value) desc.value = meta.description || '';
+      if (!mid.value) mid.value = meta.id || 'default-id';
+      if (!mname.value) mname.value = meta.name || 'Default-Title';
+      if (!desc.value) desc.value = meta.description || 'Default-Description';
       btn.disabled = false;
       btn.textContent = 'Build Mod';
     } catch (e) {
