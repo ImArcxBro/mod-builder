@@ -1,7 +1,0 @@
-{
-  "name": "moggrab-build",
-  "private": true,
-  "dependencies": {
-    "adm-zip": "^0.5.12"
-  }
-}
