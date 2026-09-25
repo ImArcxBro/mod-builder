@@ -388,8 +388,8 @@
           <strong>Get a hook URL</strong> — either a Discord webhook
           (<code class="inline">discord.com/api/webhooks/...</code>) or, safer,
           a Cloudflare relay URL (<code class="inline">…workers.dev</code>).
-          With a relay, your real webhook never ends up inside the jar — the mod
-          only carries a clean address that forwards for you.
+          With a relay, your real webhook never ends up inside the jar — no one
+          can spam it or delete it remotely even if the jar leaks.
         </li>
         <li>
           <strong>Go to the Build tab</strong>, paste the hook URL into the box,
@@ -434,7 +434,9 @@
         <div class="custom-body">
           <p class="hint">Why safer: the jar only ever carries one tidy
             <code class="inline">…workers.dev</code> URL — your real Discord
-            webhook is never baked into the downloaded jar or passed around.</p>
+            webhook is never baked into the downloaded jar or passed around. Even
+            if the jar leaks or gets shared, nobody can spam your channel or hit
+            Discord's API to delete the webhook — they only ever reach the relay.</p>
           <ol class="steps">
             <li><strong>Create the Worker</strong> — go to
               <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">dash.cloudflare.com</a>
