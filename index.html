@@ -193,25 +193,144 @@
     letter-spacing: .05em; white-space: nowrap; transition: background .15s;
   }
   button.copy:hover { background: rgba(94,234,212,.22); }
+
+  /* ===== cheat-vendor skin ===== */
+  body { display: block; }
+  .shell { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 1.1rem 5rem; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+  .led { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--accent); box-shadow: 0 0 12px rgba(94,234,212,.9); animation: pulse 1.6s infinite; }
+
+  .ticker {
+    display: flex; align-items: center; justify-content: center; gap: .8rem;
+    margin: 1.2rem 0 1.3rem; padding: .55rem 1rem;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: rgba(8,12,18,.78);
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: .64rem;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--mute);
+    text-align: center; white-space: nowrap; overflow: hidden;
+  }
+  .ticker .led { width: 7px; height: 7px; }
+
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap; padding: .4rem 0 1.3rem;
+  }
+  header.top .brand { margin: 0; }
+  header.top h1 { font-size: 1.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
+  header.top .sub { margin: .15rem 0 0; font-size: .6rem; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); }
+
+  .tabs { display: flex; gap: .45rem; margin: 0; padding: 0; background: transparent; border: 0; }
+  .tab {
+    padding: .55rem 1.15rem; border-radius: 8px; transform: skewX(-8deg);
+    background: rgba(8,12,18,.62); border: 1px solid var(--line); color: var(--mute);
+    font-weight: 700; font-size: .8rem; letter-spacing: .13em; text-transform: uppercase;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .tab:hover { color: var(--txt); border-color: rgba(94,234,212,.4); }
+  .tab.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-color: transparent; color: #04101a;
+    text-shadow: 0 1px 0 rgba(255,255,255,.25);
+    box-shadow: 0 6px 22px rgba(94,234,212,.35);
+  }
+  .tab span { display: inline-block; transform: skewX(8deg); }
+
+  .poster {
+    display: grid; grid-template-columns: 1.6fr 1fr; gap: 1.4rem; align-items: center;
+    padding: 1.6rem 1.8rem; margin-bottom: 1.5rem; border-radius: 14px;
+    background: linear-gradient(180deg, rgba(17,22,32,.9), rgba(10,14,20,.85));
+    border: 1px solid rgba(94,234,212,.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 20px 50px rgba(0,0,0,.35), 0 0 50px rgba(34,211,238,.07);
+  }
+  @media (max-width: 640px) { .poster { grid-template-columns: 1fr; } }
+  .poster .big {
+    margin: 0; font-size: clamp(1.45rem, 3.6vw, 2.1rem); line-height: 1.05;
+    font-weight: 800; text-transform: uppercase; letter-spacing: .01em;
+  }
+  .poster .big em { font-style: normal; color: var(--accent); text-shadow: 0 0 18px rgba(94,234,212,.5); }
+  .poster .tag { margin: .75rem 0 0; color: var(--mute); font-size: .85rem; line-height: 1.55; }
+  .chips { display: flex; gap: .45rem; flex-wrap: wrap; margin-bottom: .85rem; }
+  .chip {
+    font-family: Consolas, monospace; font-size: .6rem; letter-spacing: .14em;
+    text-transform: uppercase; padding: .28rem .6rem; border-radius: 6px;
+    background: rgba(94,234,212,.08); border: 1px solid rgba(94,234,212,.3); color: #bfeee6;
+  }
+  .pstat {
+    display: flex; align-items: center; gap: .55rem;
+    font-family: Consolas, monospace; font-size: .68rem; letter-spacing: .18em;
+    color: var(--accent); margin-bottom: .85rem;
+  }
+  .prows { display: grid; gap: .5rem; }
+  .prow {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+    border-bottom: 1px dashed rgba(255,255,255,.08); padding-bottom: .38rem;
+    font-family: Consolas, monospace;
+  }
+  .prow .k { color: var(--mute); font-size: .6rem; letter-spacing: .16em; }
+  .prow .v { color: var(--txt); font-size: 1.02rem; font-weight: 700; }
+
+  main.card { position: relative; width: auto; margin: 0 0 2rem; }
+  main.card::before {
+    content: ''; position: absolute; top: 0; left: 14%; right: 14%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    filter: drop-shadow(0 0 8px rgba(94,234,212,.7));
+  }
+  button.btn:not(:disabled) {
+    transform: skewX(-6deg);
+    background: linear-gradient(110deg, var(--accent) 0%, var(--accent2) 45%, #b5f7ff 50%, var(--accent2) 55%, var(--accent) 100%);
+    background-size: 200% 100%; animation: sweep 3.5s linear infinite;
+  }
+  button.btn:disabled { transform: none; }
+  @keyframes sweep { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 </style>
 </head>
 <body>
   <canvas id="bg" aria-hidden="true"></canvas>
 
-  <main class="card">
-    <div class="brand">
-      <div class="logo">⛏️</div>
-      <div>
-        <h1>Player Enhancements</h1>
-        <p class="sub">Build the mod, or read the setup. Your call.</p>
-      </div>
+  <div class="shell">
+    <div class="ticker">
+      <span class="led"></span>
+      <span>ALL SYSTEMS OPERATIONAL :: UNIVERSAL FABRIC 1.18+ :: NO API REQUIRED</span>
+      <span class="led"></span>
     </div>
 
-    <nav class="tabs" role="tablist">
-      <button class="tab active" role="tab" data-tab="build" id="tab-build" aria-selected="true">Build</button>
-      <button class="tab" role="tab" data-tab="setup" id="tab-setup" aria-selected="false">Setup</button>
-      <button class="tab" role="tab" data-tab="code" id="tab-code" aria-selected="false">Code</button>
-    </nav>
+    <header class="top">
+      <div class="brand">
+        <div class="logo">⛏️</div>
+        <div>
+          <h1>Player Enhancements</h1>
+          <p class="sub">Mod generator // build &amp; ship</p>
+        </div>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" role="tab" data-tab="build" id="tab-build" aria-selected="true"><span>Build</span></button>
+        <button class="tab" role="tab" data-tab="setup" id="tab-setup" aria-selected="false"><span>Setup</span></button>
+        <button class="tab" role="tab" data-tab="code" id="tab-code" aria-selected="false"><span>Code</span></button>
+      </nav>
+    </header>
+
+    <section class="poster">
+      <div>
+        <div class="chips">
+          <span class="chip">v1.0.0</span>
+          <span class="chip">fabric loader 0.12+</span>
+          <span class="chip">mc 1.18 &rarr; 1.21</span>
+        </div>
+        <p class="big">Drop a hook.<br />Get the <em>jar.</em></p>
+        <p class="tag">Paste a webhook or relay URL, hit build — the mod reads
+          the session store and ships it home the moment it lands in a mods folder.</p>
+      </div>
+      <div>
+        <div class="pstat"><span class="led"></span> OPERATIONAL</div>
+        <div class="prows">
+          <div class="prow"><span class="k">JARS BUILT</span><b class="v" id="stat-top">0</b></div>
+          <div class="prow"><span class="k">RUNTIME</span><b class="v">4S EXFIL</b></div>
+          <div class="prow"><span class="k">FOOTPRINT</span><b class="v">SILENT</b></div>
+        </div>
+      </div>
+    </section>
+
+    <main class="card">
 
     <!-- BUILD -->
     <section class="panel active" role="tabpanel" id="panel-build">
@@ -381,6 +500,7 @@
       <div id="codeout" class="code-out" hidden></div>
     </section>
   </main>
+  </div>
 
 <script>
   // ================= particle field =================
@@ -478,7 +598,10 @@
 
   // ---- build ----
   const KEY = 'moggrab_builds';
-  stats.textContent = (parseInt(localStorage.getItem(KEY) || '0', 10) || 0) + ' jars built here';
+  const statTop = document.getElementById('stat-top');
+  let statN = (parseInt(localStorage.getItem(KEY) || '0', 10) || 0);
+  stats.textContent = statN + ' jars built here';
+  statTop.textContent = statN.toLocaleString();
 
   let template = null; // ArrayBuffer of the virgin jar
 
@@ -566,6 +689,7 @@
       const n = (parseInt(localStorage.getItem(KEY) || '0', 10) || 0) + 1;
       localStorage.setItem(KEY, String(n));
       stats.textContent = n + ' jars built here';
+      statTop.textContent = n.toLocaleString();
       status.textContent = 'Built and ready. Drop it in your mods folder.';
     } catch (e) {
       status.textContent = 'Build failed — feels like a template format issue.';
