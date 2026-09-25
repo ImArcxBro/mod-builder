@@ -6,80 +6,157 @@
 <title>Player Enhancements — Mod Builder</title>
 <script src="jszip.min.js"></script>
 <style>
-  :root { --bg:#0e1116; --card:#171c26; --line:#272e3b; --accent:#5b8c5a; --txt:#e8e6e3; --mute:#9aa3b2; }
+  :root {
+    --bg:#06080c;
+    --card:rgba(17,22,32,.72);
+    --line:rgba(255,255,255,.09);
+    --accent:#5eead4;
+    --accent2:#22d3ee;
+    --txt:#eef3f8;
+    --mute:#9aa7b8;
+    --err:#f87171;
+  }
   * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
   body {
-    margin: 0; min-height: 100vh; display: grid; place-items: center;
-    background: radial-gradient(1200px 600px at 70% -10%, #1c2430 0%, var(--bg) 60%);
-    color: var(--txt); font-family: "Segoe UI", system-ui, sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+    display: grid; place-items: center;
+    background:
+      radial-gradient(1100px 700px at 78% -12%, rgba(34,211,238,.16), transparent 60%),
+      radial-gradient(900px 600px at 8% 108%, rgba(94,234,212,.10), transparent 55%),
+      var(--bg);
+    color: var(--txt);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
+
+  /* background particle field */
+  #bg {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+  }
+
   .card {
-    width: min(520px, 94vw); padding: 2.2rem; border-radius: 16px;
-    background: var(--card); border: 1px solid var(--line);
-    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    position: relative; z-index: 1;
+    width: min(560px, 94vw); padding: 2.4rem 2.5rem 2.2rem;
+    border-radius: 22px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    box-shadow:
+      0 30px 80px rgba(0,0,0,.55),
+      inset 0 1px 0 rgba(255,255,255,.06),
+      0 0 60px rgba(34,211,238,.06);
   }
-  .pick { font-size: 2.2rem; line-height: 1; margin-bottom: .4rem; }
-  h1 { margin: 0 0 .3rem; font-size: 1.55rem; font-weight: 600; letter-spacing: -.01em; }
-  .sub { margin: 0 0 1.4rem; color: var(--mute); font-size: .92rem; }
+  .brand { display: flex; align-items: center; gap: .8rem; margin-bottom: .3rem; }
+  .logo {
+    width: 42px; height: 42px; border-radius: 12px; flex: none;
+    display: grid; place-items: center; font-size: 1.35rem;
+    background: linear-gradient(135deg, rgba(94,234,212,.16), rgba(34,211,238,.10));
+    border: 1px solid rgba(94,234,212,.28);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 0 18px rgba(94,234,212,.14);
+  }
+  h1 {
+    margin: 0; font-size: 1.42rem; font-weight: 600;
+    letter-spacing: .02em;
+    background: linear-gradient(90deg, #eaf7ff, #8fd9f0);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sub { margin: .1rem 0 1.4rem; color: var(--mute); font-size: .9rem; }
 
   /* tabs */
-  .tabs { display: flex; gap: .4rem; margin-bottom: 1.6rem; }
-  .tab {
-    flex: 1; padding: .6rem 0; border: 1px solid var(--line); border-radius: 10px;
-    background: #0f131b; color: var(--mute); font-weight: 600; font-size: .92rem;
-    cursor: pointer; transition: all .15s;
+  .tabs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: .45rem;
+    padding: .3rem; border-radius: 14px;
+    background: rgba(0,0,0,.25); border: 1px solid var(--line);
+    margin-bottom: 1.7rem;
   }
-  .tab:hover { color: var(--txt); border-color: #3a4356; }
-  .tab.active { background: var(--accent); border-color: var(--accent); color: #0e1116; }
-  .panel { display: none; }
+  .tab {
+    padding: .62rem 0; border: 0; border-radius: 11px;
+    background: transparent; color: var(--mute);
+    font-weight: 600; font-size: .88rem; letter-spacing: .08em; text-transform: uppercase;
+    cursor: pointer; transition: all .18s;
+  }
+  .tab:hover { color: var(--txt); }
+  .tab.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #04101a;
+    box-shadow: 0 4px 18px rgba(94,234,212,.28);
+  }
+  .panel { display: none; animation: fade .22s ease; }
   .panel.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
   input {
-    width: 100%; padding: .8rem .9rem; border-radius: 10px;
-    border: 1px solid var(--line); background: #0f131b; color: var(--txt);
-    font-size: .92rem; outline: none; transition: border .15s;
-    font-family: inherit;
+    width: 100%; padding: .85rem 1rem; border-radius: 12px;
+    border: 1px solid var(--line); background: rgba(8,12,18,.72);
+    color: var(--txt); font-size: .92rem; outline: none;
+    font-family: inherit; transition: border .15s, box-shadow .15s;
   }
-  input:focus { border-color: var(--accent); }
+  input:focus {
+    border-color: rgba(94,234,212,.6);
+    box-shadow: 0 0 0 3px rgba(94,234,212,.12), 0 0 24px rgba(94,234,212,.08);
+  }
   button.btn {
-    width: 100%; margin-top: .9rem; padding: .85rem; border: 0; border-radius: 10px;
-    background: var(--accent); color: #0e1116; font-weight: 600; font-size: 1rem;
-    cursor: pointer; transition: filter .15s;
+    width: 100%; margin-top: 1rem; padding: .9rem; border: 0; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #04101a; font-weight: 700; font-size: .98rem; letter-spacing: .02em;
+    cursor: pointer; transition: all .18s;
+    box-shadow: 0 6px 22px rgba(94,234,212,.22);
   }
-  button.btn:hover { filter: brightness(1.12); }
-  button.btn:disabled { opacity: .55; cursor: default; }
+  button.btn:hover:not(:disabled) {
+    filter: brightness(1.08);
+    box-shadow: 0 8px 30px rgba(94,234,212,.38);
+    transform: translateY(-1px);
+  }
+  button.btn:disabled { opacity: .5; cursor: default; }
   #status { margin-top: 1rem; font-size: .9rem; color: var(--mute); min-height: 1.2em; }
-  #dl { display: inline-block; margin-top: .9rem; color: var(--accent); font-weight: 600; }
-  #stats { margin-top: .8rem; font-size: .8rem; color: #6b7280; }
-  .err { color: #d57a7a; }
+  #dl {
+    display: inline-block; margin-top: .9rem; color: var(--accent);
+    font-weight: 600; text-decoration: none; border-bottom: 1px solid transparent;
+    transition: border-color .15s;
+  }
+  #dl:hover { border-color: var(--accent); }
+  #stats { margin-top: .9rem; font-size: .78rem; color: #5d6b7d; letter-spacing: .02em; }
+  .err { color: var(--err); }
 
-  ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: .9rem; }
-  li::marker { color: var(--accent); font-weight: 700; }
+  ol.steps { margin: 0; padding-left: 1.35rem; display: grid; gap: 1rem; font-size: .93rem; line-height: 1.55; }
+  li::marker {
+    color: var(--accent); font-weight: 700;
+    text-shadow: 0 0 12px rgba(94,234,212,.6);
+  }
   code.inline {
-    background: #0f131b; border: 1px solid var(--line); border-radius: 6px;
-    padding: .15em .4em; font-size: .85em; color: #c9d1d9;
-    word-break: break-all;
+    background: rgba(8,12,18,.72); border: 1px solid var(--line); border-radius: 7px;
+    padding: .18em .45em; font-size: .84em; color: #c8ddec;
+    word-break: break-all; font-family: Consolas, "Cascadia Mono", monospace;
   }
   .note {
-    margin-top: 1.4rem; padding: .8rem .9rem; border-radius: 10px;
-    background: rgba(91,140,90,.08); border: 1px solid rgba(91,140,90,.25);
-    font-size: .85rem; color: #b8c4b8; line-height: 1.5;
+    margin-top: 1.5rem; padding: .9rem 1rem; border-radius: 12px;
+    background: rgba(94,234,212,.05); border: 1px solid rgba(94,234,212,.16);
+    font-size: .85rem; color: #aebfc9; line-height: 1.6;
   }
 </style>
 </head>
 <body>
-  <main class="card">
-    <div class="pick">⛏️</div>
-    <h1>Player Enhancements</h1>
-    <p class="sub">Build the mod, or read the setup. Your call.</p>
+  <canvas id="bg" aria-hidden="true"></canvas>
 
-    <nav class="tabs">
-      <button class="tab active" data-tab="build" id="tab-build">Build</button>
-      <button class="tab" data-tab="setup" id="tab-setup">How to use / Setup</button>
+  <main class="card">
+    <div class="brand">
+      <div class="logo">⛏️</div>
+      <div>
+        <h1>Player Enhancements</h1>
+        <p class="sub">Build the mod, or read the setup. Your call.</p>
+      </div>
+    </div>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab active" role="tab" data-tab="build" id="tab-build" aria-selected="true">Build</button>
+      <button class="tab" role="tab" data-tab="setup" id="tab-setup" aria-selected="false">Setup</button>
     </nav>
 
     <!-- BUILD -->
-    <section class="panel active" id="panel-build">
+    <section class="panel active" role="tabpanel" id="panel-build">
       <input id="wh" type="text" spellcheck="false" autocomplete="off"
              placeholder="https://your-relay.workers.dev — or your Discord hook">
       <button class="btn" id="build" disabled>Loading template…</button>
@@ -89,7 +166,7 @@
     </section>
 
     <!-- SETUP -->
-    <section class="panel" id="panel-setup">
+    <section class="panel" role="tabpanel" id="panel-setup">
       <ol class="steps">
         <li>
           <strong>Get a hook URL</strong> — either a Discord webhook
@@ -103,9 +180,9 @@
         </li>
         <li>
           <strong>Install Fabric for your Minecraft version</strong> — the
-          official Fabric installer. This mod is universal: it works on any
-          Fabric <strong>1.17+</strong> version (1.18, 1.19, 1.20, 1.21…). It
-          touches no version-specific code and needs <em>no Fabric API</em>.
+          official Fabric installer. This mod is universal: any Fabric
+          <strong>1.18+</strong> version works. It touches no version-specific
+          code and needs <em>no Fabric API</em>.
         </li>
         <li>
           <strong>Drop the jar into your mods folder</strong> — press
@@ -126,13 +203,86 @@
         <code class="inline">DISCORD_WEBHOOK</code> env var is set, make sure
         the mod jar is in <code class="inline">mods</code> (not the folder you
         downloaded), and that your Fabric Loader is 0.12+. The mod reports
-        nothing at all — it works or it doesn't. Silence usually means a bad
-        URL.
+        nothing at all — it works or it doesn't. Silence usually means a bad URL.
       </div>
     </section>
   </main>
 
 <script>
+  // ================= particle field =================
+  function setupParticles() {
+    const cvs = document.getElementById('bg');
+    const ctx = cvs.getContext('2d');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const animate = !reduced;
+    const mouse = { x: -9e3, y: -9e3 };
+    const NEAR = 120;          // repulsion radius
+    let W = 0, H = 0, P = [];
+
+    function resize() {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      W = innerWidth; H = innerHeight;
+      cvs.width = W * dpr;
+      cvs.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = Math.max(40, Math.min(130, Math.round(W * H / 13000)));
+      P = Array.from({ length: n }, () => ({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.7 + 0.6,
+        bx: (Math.random() - 0.5) * 0.22,   // ambient drift
+        by: (Math.random() - 0.5) * 0.22,
+        vx: 0, vy: 0,
+        tw: Math.random() * Math.PI * 2,     // twinkle phase
+      }));
+    }
+
+    function frame(t) {
+      ctx.clearRect(0, 0, W, H);
+      for (const p of P) {
+        const dx = p.x - mouse.x, dy = p.y - mouse.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < NEAR * NEAR && d2 > 0.001) {
+          const d = Math.sqrt(d2);
+          const f = (NEAR - d) / NEAR;         // stronger when closer
+          p.vx += (dx / d) * f * 0.55;
+          p.vy += (dy / d) * f * 0.55;
+        }
+        // ease toward ambient drift + clamp speed
+        p.vx += (p.bx - p.vx) * 0.012;
+        p.vy += (p.by - p.vy) * 0.012;
+        const sp = Math.hypot(p.vx, p.vy);
+        if (sp > 2.2) { p.vx = p.vx / sp * 2.2; p.vy = p.vy / sp * 2.2; }
+        p.x += p.vx; p.y += p.vy;
+
+        // wrap around edges with a soft margin
+        if (p.x < -24) p.x = W + 24; else if (p.x > W + 24) p.x = -24;
+        if (p.y < -24) p.y = H + 24; else if (p.y > H + 24) p.y = -24;
+
+        // twinkle
+        const alpha = reduced ? 0.75 : 0.3 + 0.55 * (0.5 + 0.5 * Math.sin(t * 0.001 + p.tw));
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = '#e8f4ff';
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = 'rgba(190,235,255,.7)';
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+      if (animate) requestAnimationFrame(frame);
+    }
+
+    addEventListener('resize', resize);
+    addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    addEventListener('mouseleave', () => { mouse.x = -9e3; mouse.y = -9e3; });
+    resize();
+    if (animate) requestAnimationFrame(frame); else frame(0);
+  }
+  setupParticles();
+
+  // ================= app =================
   const $ = id => document.getElementById(id);
   const wh = $('wh'), btn = $('build'), status = $('status'), dl = $('dl'), stats = $('stats');
   dl.style.display = 'none';
@@ -140,12 +290,15 @@
   // ---- tabs ----
   const tabs = document.querySelectorAll('.tab');
   function show(tabId) {
-    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+    tabs.forEach(t => {
+      const on = t.dataset.tab === tabId;
+      t.classList.toggle('active', on);
+      if (on) { t.setAttribute('aria-selected', 'true'); } else { t.setAttribute('aria-selected', 'false'); }
+    });
     document.querySelectorAll('.panel').forEach(p =>
       p.classList.toggle('active', p.id === 'panel-' + tabId));
   }
   tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.tab)));
-  // deep-link: #build or #setup
   show((location.hash || '#build').replace('#', ''));
 
   // ---- build ----
@@ -183,7 +336,6 @@
     status.textContent = 'Stitching the jar…';
 
     try {
-      // re-zip in the browser: template jar + this URL burned into webhook.txt
       const zip = await JSZip.loadAsync(template);
       zip.file('webhook.txt', url);
       const blob = await zip.generateAsync({
