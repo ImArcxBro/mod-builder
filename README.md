@@ -50,3 +50,19 @@ cd mod-site; git add .; git commit -m "update jar"; git push
 - The jar is fetched as an opaque binary; GitHub serves `.jar` fine.
 - Local test: `python -m http.server 8080` inside this folder, then open
   `http://localhost:8080`.
+
+## Optional: hide the Discord hook behind a Worker relay
+
+Instead of burning an obvious `discord.com/api/webhooks/...` string into the
+jar, point the builder at a Cloudflare Worker that forwards to Discord. The
+jar then only contains a clean `<name>.workers.dev` URL.
+
+1. Cloudflare → **Workers & Pages** → **Create Worker** → paste
+   `../cloudflare-worker/worker.js` into the editor.
+2. Worker → **Settings → Variables** → add:
+   - `DISCORD_WEBHOOK` = your real Discord webhook URL
+   - `HOOK_SECRET` = any random string (leaving it empty = no lock)
+3. **Deploy**, then copy the `*.workers.dev` URL it gives you and paste
+   *that* into the builder box instead of the Discord URL.
+4. Rotate the worker name / deploy a fresh worker now and then so the URL
+   in the wild isn't a permanent, fingerprinted target.

