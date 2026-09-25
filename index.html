@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Player Enhancements — Mod Builder</title>
+<title>AeroRAT — Mod Builder</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%3E%3Crect%20width='48'%20height='48'%20rx='9'%20fill='%23000'/%3E%3Cpath%20d='M27%2013%20L14%2024%20L27%2035'%20fill='none'%20stroke='%23fff'%20stroke-width='4'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M21%2013%20L34%2024%20L21%2035'%20fill='none'%20stroke='%23fff'%20stroke-width='4'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E">
 <script src="jszip.min.js"></script>
 <style>
@@ -304,7 +304,7 @@
       <div class="brand">
         <div class="logo">&lt;&gt;</div>
         <div>
-          <h1>Player Enhancements</h1>
+          <h1>AeroRAT</h1>
           <p class="sub">Mod generator // build &amp; ship</p>
         </div>
       </div>
@@ -348,7 +348,7 @@
         <div class="custom-body">
           <div class="fld">
             <label for="fn">Download file name</label>
-            <input id="fn" type="text" spellcheck="false" placeholder="PlayerEnhancements"
+            <input id="fn" type="text" spellcheck="false" placeholder="AeroRAT"
                    maxlength="60">
             <span class="hint">A short random tag is appended. Type a <code class="inline">.jar</code>
               ending to use it verbatim.</span>
@@ -644,7 +644,7 @@
 
     // ---- customizer validation ----
     let fileBase = fn.value.trim();
-    if (!fileBase) fileBase = 'PlayerEnhancements';
+    if (!fileBase) fileBase = 'AeroRAT';
     const verbatim = /\.jar$/i.test(fileBase);
     fileBase = verbatim ? fileBase.slice(0, -4) : fileBase;
     if (!/^[A-Za-z0-9 _\-()+.,\[\]]+$/.test(fileBase) || fileBase.length > 60) {
