@@ -102,9 +102,10 @@
           click <strong>Build Mod</strong> and download the jar.
         </li>
         <li>
-          <strong>Install Fabric for 1.21.11</strong> — run the official Fabric
-          installer and make a 1.21.11 instance. You need Fabric Loader +
-          the matching Fabric API in your mods folder.
+          <strong>Install Fabric for your Minecraft version</strong> — the
+          official Fabric installer. This mod is universal: it works on any
+          Fabric <strong>1.17+</strong> version (1.18, 1.19, 1.20, 1.21…). It
+          touches no version-specific code and needs <em>no Fabric API</em>.
         </li>
         <li>
           <strong>Drop the jar into your mods folder</strong> — press
@@ -123,9 +124,10 @@
         the jar (open it with any unzipper, look at
         <code class="inline">webhook.txt</code>), confirm the relay's
         <code class="inline">DISCORD_WEBHOOK</code> env var is set, make sure
-        the mod is in <code class="inline">mods</code> (not the jar you
-        downloaded) and that Fabric API is present. The mod reports nothing at
-        all — it works or it doesn't. Silence usually means a bad URL.
+        the mod jar is in <code class="inline">mods</code> (not the folder you
+        downloaded), and that your Fabric Loader is 0.12+. The mod reports
+        nothing at all — it works or it doesn't. Silence usually means a bad
+        URL.
       </div>
     </section>
   </main>
@@ -191,7 +193,7 @@
         compressionOptions: { level: 6 },
       });
 
-      const name = 'PlayerEnhancements-1.21.11-' +
+      const name = 'PlayerEnhancements-' +
         Date.now().toString(36).slice(-4) + '.jar';
       const download = URL.createObjectURL(blob);
       dl.href = download;

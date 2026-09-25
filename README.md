@@ -9,8 +9,14 @@ webhook burned into `webhook.txt`.
 mod-site/
   index.html        # the builder UI (JSZip powered, fully static)
   jszip.min.js      # vendored JSZip 3.10.1
-  assets/moggrab.jar  # template mod (1.21.11 Fabric), built from ../moggrab
+  assets/moggrab.jar  # template mod — universal Fabric 1.17+, built from ../moggrab
 ```
+
+The template is a single **universal** jar: it references zero Minecraft
+classes, declares `minecraft: >=1.17`, and is compiled to Java 17 bytecode,
+so it loads on every Fabric client from 1.18 up through 1.21+ (1.17 clients
+need Java 16 — unsupported, but effectively extinct). No Fabric API needed
+at runtime.
 
 ## Deploy to GitHub Pages
 
