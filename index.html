@@ -438,8 +438,8 @@
             <li><strong>Create the Worker</strong> — go to
               <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">dash.cloudflare.com</a>
               → <strong>Workers &amp; Pages</strong> → <strong>Create</strong> →
-              <strong>Create Worker</strong>. Name it — mine is
-              <code class="inline">shrill-tree-3374</code>, anything works — and
+              <strong>Create Worker</strong>. Name it — anything works, Cloudflare
+              even auto-suggests a random one — and
               hit <strong>Deploy</strong>.</li>
             <li><strong>Paste the generated code</strong> — open <strong>Edit code</strong>,
               delete the default script, paste the worker you generated above, then
@@ -452,13 +452,9 @@
               value. The worker prefers that secret over the baked-in one, so the
               hook never lives in code you copy around.</li>
             <li><strong>Grab the URL</strong> — the worker's address is shown at the
-              top; mine is
-              <code class="inline">https://shrill-tree-3374.kulakov-42q1v.workers.dev</code>.
-              Paste that into the Build tab instead of the raw Discord hook.</li>
+              top of its page. Paste that into the Build tab instead of the raw
+              Discord hook.</li>
           </ol>
-          <p class="hint">Ready to paste into the Build box — this string works right
-            now:</p>
-          <pre class="cf-code">https://shrill-tree-3374.kulakov-42q1v.workers.dev</pre>
           <p class="hint">The worker supports an optional
             <code class="inline">HOOK_SECRET</code> + <code class="inline">X-Hook-Secret</code>
             handshake, but the mod doesn't send one — leave it unset unless you're
