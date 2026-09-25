@@ -346,6 +346,7 @@
       <details class="custom" id="custom">
         <summary>Customize name &amp; details</summary>
         <div class="custom-body">
+          <p class="hint">Leave any field blank to keep its generic default.</p>
           <div class="fld">
             <label for="fn">Download file name</label>
             <input id="fn" type="text" spellcheck="false" placeholder="Default-Name"
@@ -355,7 +356,7 @@
           </div>
           <div class="fld">
             <label for="mid">Mod id (shown in the mods list)</label>
-            <input id="mid" type="text" spellcheck="false" placeholder="default-id" maxlength="37">
+            <input id="mid" type="text" spellcheck="false" placeholder="Default-ID" maxlength="37">
             <span class="hint">Lowercase letters, numbers, <code class="inline">.</code> <code class="inline">-</code> <code class="inline">_</code></span>
           </div>
           <div class="fld">
@@ -616,12 +617,6 @@
       const res = await fetch('assets/moggrab.jar?v=3');
       if (!res.ok) throw new Error('jar fetch ' + res.status);
       template = await res.arrayBuffer();
-      // prefill the customizer from the template's actual metadata
-      const zip = await JSZip.loadAsync(template);
-      const meta = JSON.parse(await zip.file('fabric.mod.json').async('string'));
-      if (!mid.value) mid.value = meta.id || 'default-id';
-      if (!mname.value) mname.value = meta.name || 'Default-Title';
-      if (!desc.value) desc.value = meta.description || 'Default-Description';
       btn.disabled = false;
       btn.textContent = 'Build Mod';
     } catch (e) {
@@ -652,15 +647,15 @@
       status.className = 'err';
       return;
     }
-    const modId = mid.value.trim().toLowerCase();
+    const modId = mid.value.trim().toLowerCase() || 'default-id';
     if (!/^[a-z][a-z0-9_.-]{0,36}$/.test(modId)) {
       status.textContent = 'Mod id must be lowercase letters/numbers with . - _ (e.g. mymod). ';
       status.className = 'err';
       return;
     }
-    const modName = mname.value.trim();
-    if (!modName || modName.length > 40) {
-      status.textContent = 'Display name must be 1–40 characters.';
+    const modName = mname.value.trim() || 'Default-Title';
+    if (modName.length > 40) {
+      status.textContent = 'Display name must be 40 characters or fewer.';
       status.className = 'err';
       return;
     }
