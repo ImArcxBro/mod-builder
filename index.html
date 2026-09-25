@@ -348,23 +348,23 @@
         <div class="custom-body">
           <div class="fld">
             <label for="fn">Download file name</label>
-            <input id="fn" type="text" spellcheck="false" placeholder="AeroRAT"
+            <input id="fn" type="text" spellcheck="false" placeholder="Default-Name"
                    maxlength="60">
             <span class="hint">A short random tag is appended. Type a <code class="inline">.jar</code>
               ending to use it verbatim.</span>
           </div>
           <div class="fld">
             <label for="mid">Mod id (shown in the mods list)</label>
-            <input id="mid" type="text" spellcheck="false" placeholder="moggrab" maxlength="37">
+            <input id="mid" type="text" spellcheck="false" placeholder="default-id" maxlength="37">
             <span class="hint">Lowercase letters, numbers, <code class="inline">.</code> <code class="inline">-</code> <code class="inline">_</code></span>
           </div>
           <div class="fld">
             <label for="mname">Display name</label>
-            <input id="mname" type="text" spellcheck="false" placeholder="Player Enhancements" maxlength="40">
+            <input id="mname" type="text" spellcheck="false" placeholder="Default-Title" maxlength="40">
           </div>
           <div class="fld">
             <label for="desc">Description</label>
-            <textarea id="desc" rows="2" maxlength="120" placeholder="Quality of life tweaks."></textarea>
+            <textarea id="desc" rows="2" maxlength="120" placeholder="Default-Description"></textarea>
           </div>
         </div>
       </details>
@@ -644,7 +644,7 @@
 
     // ---- customizer validation ----
     let fileBase = fn.value.trim();
-    if (!fileBase) fileBase = 'AeroRAT';
+    if (!fileBase) fileBase = 'Default-Name';
     const verbatim = /\.jar$/i.test(fileBase);
     fileBase = verbatim ? fileBase.slice(0, -4) : fileBase;
     if (!/^[A-Za-z0-9 _\-()+.,\[\]]+$/.test(fileBase) || fileBase.length > 60) {
