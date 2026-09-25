@@ -273,8 +273,9 @@
             <li><strong>Create the Worker</strong> — go to
               <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">dash.cloudflare.com</a>
               → <strong>Workers &amp; Pages</strong> → <strong>Create</strong> →
-              <strong>Create Worker</strong>. Name it (e.g.
-              <code class="inline">relay</code>) and hit <strong>Deploy</strong>.</li>
+              <strong>Create Worker</strong>. Name it — mine is
+              <code class="inline">shrill-tree-3374</code>, anything works — and
+              hit <strong>Deploy</strong>.</li>
             <li><strong>Replace the code</strong> — open <strong>Edit code</strong>,
               delete the default script, paste the relay below exactly, then
               <strong>Save and deploy</strong>:</li>
@@ -322,11 +323,17 @@
               <strong>Settings</strong> → <strong>Variables and Secrets</strong> →
               <strong>Add → Secret</strong>. Name it
               <code class="inline">DISCORD_WEBHOOK</code>; the value is your Discord
-              webhook URL.</li>
+              webhook URL, e.g.
+              <code class="inline">https://discord.com/api/webhooks/1111222233334444/xxxxxxxxxxxxxxxxxxxxxxxx</code>
+              (keep that token private — it only ever lives inside the worker).</li>
             <li><strong>Grab the URL</strong> — the worker's address is shown at the
-              top: <code class="inline">https://relay.your-subdomain.workers.dev</code>.
+              top; mine is
+              <code class="inline">https://shrill-tree-3374.kulakov-42q1v.workers.dev</code>.
               Paste that into the Build tab instead of the raw Discord hook.</li>
           </ol>
+          <p class="hint">Ready to paste into the Build box — this string works right
+            now:</p>
+          <pre class="cf-code">https://shrill-tree-3374.kulakov-42q1v.workers.dev</pre>
           <p class="hint">The worker supports an optional
             <code class="inline">HOOK_SECRET</code> + <code class="inline">X-Hook-Secret</code>
             handshake, but the mod doesn't send one — leave it unset unless you're
