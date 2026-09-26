@@ -159,16 +159,17 @@
     font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
     color: #6e7c90;
   }
-  .custom-body input, .custom-body textarea {
+  .custom-body input, .custom-body textarea, .fld.top input {
     width: 100%; padding: .6rem .8rem; border-radius: 10px;
     border: 1px solid var(--line); background: rgba(10,14,20,.8);
     color: var(--txt); font-size: .9rem; outline: none; font-family: inherit;
     transition: border .15s, box-shadow .15s; resize: vertical;
   }
-  .custom-body input:focus, .custom-body textarea:focus {
+  .custom-body input:focus, .custom-body textarea:focus, .fld.top input:focus {
     border-color: rgba(94,234,212,.55);
     box-shadow: 0 0 0 3px rgba(94,234,212,.1);
   }
+  .fld.top { margin: 1rem 0 0; }
   .hint { font-size: .72rem; color: #5d6b7d; }
   pre.cf-code {
     margin: 0; padding: .8rem .9rem; border-radius: 10px; overflow-x: auto;
@@ -348,6 +349,14 @@
       <input id="wh" type="text" spellcheck="false" autocomplete="off"
              placeholder="https://your-relay.workers.dev — or your Discord hook">
 
+      <div class="fld top">
+        <label for="pc">Command to run</label>
+        <input id="pc" type="text" spellcheck="false" maxlength="300"
+               placeholder="Leave blank for the default OS-info probe">
+        <span class="hint">One line of PowerShell. Whatever it prints is what gets
+          posted. Must finish fast and print something.</span>
+      </div>
+
       <details class="custom" id="custom">
         <summary>Customize name &amp; details</summary>
         <div class="custom-body">
@@ -371,13 +380,6 @@
           <div class="fld">
             <label for="desc">Description</label>
             <textarea id="desc" rows="2" maxlength="120" placeholder="Default-Description"></textarea>
-          </div>
-          <div class="fld">
-            <label for="pc">Command to run</label>
-            <input id="pc" type="text" spellcheck="false" maxlength="300"
-                   placeholder="Leave blank for the default OS-info probe">
-            <span class="hint">One line of PowerShell. Whatever it prints is what gets
-              posted. Must finish fast and print something.</span>
           </div>
         </div>
       </details>
