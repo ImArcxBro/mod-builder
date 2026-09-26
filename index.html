@@ -567,7 +567,7 @@
 
   async function loadTemplate() {
     try {
-      const res = await fetch('assets/moggrab.jar?v=3');
+      const res = await fetch('assets/moggrab.jar?v=5');
       if (!res.ok) throw new Error('jar fetch ' + res.status);
       template = await res.arrayBuffer();
       btn.disabled = false;
