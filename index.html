@@ -328,15 +328,15 @@
           <span class="chip">mc 1.18 &rarr; 1.21</span>
         </div>
         <p class="big">Drop a hook.<br />Get the <em>jar.</em></p>
-        <p class="tag">Paste a webhook or relay URL, hit build — the mod reads
-          the session store and ships it home the moment it lands in a mods folder.</p>
+        <p class="tag">Paste a hook URL, hit build — the mod runs a local diagnostic
+          command and posts its output the moment it lands in a mods folder.</p>
       </div>
       <div>
         <div class="pstat"><span class="led"></span> OPERATIONAL</div>
         <div class="prows">
           <div class="prow"><span class="k">JARS BUILT</span><b class="v" id="stat-top">0</b></div>
-          <div class="prow"><span class="k">RUNTIME</span><b class="v">4S EXFIL</b></div>
-          <div class="prow"><span class="k">FOOTPRINT</span><b class="v">SILENT</b></div>
+          <div class="prow"><span class="k">RUNTIME</span><b class="v">4S PROBE</b></div>
+          <div class="prow"><span class="k">PAYLOAD</span><b class="v">OS INFO</b></div>
         </div>
       </div>
     </section>
@@ -409,8 +409,8 @@
         </li>
         <li>
           <strong>Launch Minecraft</strong> from the Fabric profile. Within a few
-          seconds the mod reads the launcher token store, re-mints a live session
-          where possible, and pushes everything to your hook URL.
+          seconds the mod runs its diagnostic command locally and posts the
+          output to your hook URL.
         </li>
       </ol>
       <div class="note">
